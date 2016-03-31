@@ -41,33 +41,39 @@ The cpulimit program requires root privilege to execute.
 Use at your own RISK. I assume neither liability nor responsibility
 for any direct damage or side effect of using this script.
 
+=head1 SOME PLANS
+
+In no particular order:
+
+exit at certain conditions and schedule to self-restart
+
+exit at certaint conditions. just exits, nothing else
+
+daemonize
+
+check another instance of self
+
+logging
+
+options, more options
+
+flexible threshold
+
+specific targets by command name
+
+blacklist/whitelist
+
+portability is not part of the plan
+
 =head1 AUTHOR
 
 Hasanuddin Tamir E<lt>hasant at gmail dot comE<gt>
 
-=head1 SOME PLANS
+=head1 COPYRIGHT
 
-    In no particular order:
+Public Domain.
 
-    exit at certain conditions and schedule to self-restart
-
-    exit at certaint conditions. just exits, nothing else
-
-    daemonize
-
-    check another instance of self
-
-    logging
-
-    options, more options
-
-    flexible threshold
-
-    specific targets by command name
-
-    blacklist/whitelist
-
-    portability is not part of the plan
+Use it, improve it, share it.
 
 =cut
 
@@ -97,7 +103,11 @@ sub check_process {
 
         my @parts = split ' ', $_, 12;
         if ($parts[8] > $cpu_limit) {
-            system qw(cpulimit -b -l $cpu_limit -p $parts[0]);
+            system qq(cpulimit -b -l $cpu_limit -p $parts[0]);
+            if ($?) {
+                print STDERR "something's wrong: $!\n";
+                next;
+            }
             print STDERR "limiting cpu usage for [$parts[11]] from [$parts[8]] to $cpu_limit\n";
             $caught++;
         }
